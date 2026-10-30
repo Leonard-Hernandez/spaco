@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TenantService } from '../core/api/tenant.service';
 
@@ -11,7 +11,7 @@ import { TenantService } from '../core/api/tenant.service';
       <div class="wrap">
         <div class="foot-grid">
           <div class="foot-brand">
-            @if (b.logoMark) { <img class="foot-logo" [src]="b.logoMark" alt="" width="468" height="510"> }
+            @if (b.logoMark && !logoFailed()) { <img class="foot-logo" [src]="b.logoMark" alt="" width="468" height="510" (error)="logoFailed.set(true)"> }
             <span class="foot-miel">{{ b.wordmark ?? tenant.tenant()?.name }}</span>
             <span class="foot-sub">{{ b.subline }}</span>
             @if (b.tagline) { <p class="soft" style="margin-top:10px;max-width:360px;line-height:1.6">{{ b.tagline }}.</p> }
@@ -51,4 +51,5 @@ import { TenantService } from '../core/api/tenant.service';
 export class SiteFooterComponent {
   readonly tenant = inject(TenantService);
   readonly year = new Date().getFullYear();
+  readonly logoFailed = signal(false);
 }

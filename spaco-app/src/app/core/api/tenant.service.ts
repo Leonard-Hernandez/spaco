@@ -15,6 +15,8 @@ export class TenantService {
   private title = inject(Title);
 
   readonly tenant = signal<Tenant | null>(null);
+  /** True once the tenant request settled (even on error), so the UI knows a missing logo is final. */
+  readonly loaded = signal(false);
 
   load() {
     this.api.tenant().subscribe({
@@ -22,8 +24,12 @@ export class TenantService {
         this.tenant.set(tenant);
         this.title.setTitle(tenant.name);
         this.applyTheme(tenant.branding.theme);
+        this.loaded.set(true);
       },
-      error: () => this.tenant.set(null)
+      error: () => {
+        this.tenant.set(null);
+        this.loaded.set(true);
+      }
     });
   }
 
