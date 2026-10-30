@@ -1,0 +1,10 @@
+.gradle
+build
+bin
+spaco-app
+deploy
+.git
+.claude
+*.md
+.env
+uploads

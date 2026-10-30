@@ -1,0 +1,72 @@
+server:
+  port: ${PORT:8092}
+  # Every endpoint lives under /spaco-api (same path the ingress / gateway routes)
+  servlet:
+    context-path: /spaco-api
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: spaco
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5434/spaco}
+    username: ${USER_DB:spaco}
+    password: ${PASSWORD_DB:mysecretpassword}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 8MB
+      max-request-size: 9MB
+  devtools:
+    restart:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        # /actuator/health/liveness and /actuator/health/readiness
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+spaco:
+  # authco: public issuer (iss claim), internal URL (JWKS, userinfo) and spaco audience.
+  # The MCP endpoints (<resource-id>/mcp/{tenant}) share this audience.
+  security:
+    issuer: ${AUTHCO_ISSUER:http://localhost:8087/authco}
+    internal-url: ${AUTHCO_INTERNAL_URL:${spaco.security.issuer}}
+    resource-id: ${SPACO_RESOURCE_ID:http://localhost:8092/spaco-api}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4400}
+  # Photos: <dir>/public (catalogue, published testimonials) and <dir>/private (clinical)
+  uploads:
+    dir: ${SPACO_UPLOADS:./uploads}
+  appointments:
+    # How often unanswered past requests are closed
+    expiry-check: ${APPOINTMENT_EXPIRY_CHECK:PT10M}
+  # First OWNER invited into the staff panel (linked on first login with that Google email)
+  bootstrap:
+    owner-email: ${BOOTSTRAP_OWNER_EMAIL:}
+    tenant: ${BOOTSTRAP_TENANT:miel-spa}

@@ -1,0 +1,7 @@
+{
+  "apiUrl": "/spaco-api",
+  "authUrl": "http://localhost:8093/authco",
+  "clientId": "spaco-app",
+  "resource": "http://localhost:8093/spaco-api",
+  "tenant": "miel-spa"
+}

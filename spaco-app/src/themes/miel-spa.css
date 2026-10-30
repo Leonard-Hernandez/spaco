@@ -1,0 +1,44 @@
+/*
+ * Miel Spa & Bienestar: "Botica de Miel" (miel-spa-design). Each spa ships one theme file
+ * with these same tokens; components only read tokens. branding.theme in the tenant row can
+ * override the colors without a build (see TenantService).
+ */
+:root {
+  color-scheme: light;
+  --amber: #D08A1C;
+  --navy: #1E2B55;
+  --navy-hover: #2C3D72;
+  --wax: #F7E3A6;
+  --wax-hover: #FCEFC4;
+  --field: #FDF5DC;
+  --gold-soft: #EFD58A;
+  --gold: #E9B85A;
+  --brown: #5C300A;
+  --brown-hover: #6A3A0E;
+  --honey: #E3A42F;
+  --lavender: #D2C5EC;
+  --sage: #7FA67A;
+  --clay: #8A4A3A;
+  --deep-honey: #7A4708;
+  --deep-lavender: #4F3F86;
+  --deep-sage: #3E5E3A;
+  --muted: #6B5520;
+  --muted-ink: #5E4A14;
+  --past-bg: #EFD9A0;
+  --past-fg: #7A6530;
+  --taken-rim: #B89A55;
+  --taken-bg: #E9D49A;
+  --taken-fg: #5A4A20;
+  --night-muted: #C9CEE0;
+  --night-rule: #4A5A8C;
+  --danger: #8E2A1E;
+  --ok: #3E5E3A;
+  --shadow-soft: rgba(70, 36, 0, 0.32);
+  --shadow-mid: rgba(70, 36, 0, 0.38);
+  --shadow-deep: rgba(20, 8, 0, 0.55);
+  --font-display: 'Big Shoulders Display', 'Oswald', 'Roboto Condensed', 'Arial Narrow', sans-serif;
+  --font-serif: 'Young Serif', 'Roboto Slab', 'Rockwell', Georgia, 'Times New Roman', serif;
+  --font-body: 'Libre Franklin', 'Franklin Gothic Book', 'Helvetica Neue', Arial, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --gutter: clamp(16px, 10vw - 24px, 120px);
+}
