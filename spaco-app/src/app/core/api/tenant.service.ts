@@ -7,6 +7,14 @@ import { Branding, Tenant } from './models';
 const THEME_TOKENS = ['amber', 'navy', 'navy-hover', 'wax', 'wax-hover', 'field', 'gold-soft', 'gold', 'brown',
   'honey', 'lavender', 'sage', 'clay'];
 
+/**
+ * Only same-origin paths ("/assets/..."): a third-party logo URL would make every visitor, staff
+ * included, leak their IP and referrer to that host. "//" and "/\" are protocol-relative in browsers.
+ */
+function sameOriginPath(url: string | undefined): string | undefined {
+  return url && /^\/(?![\/\\])/.test(url) ? url : undefined;
+}
+
 /** The spa this site belongs to (name, contact, branding). */
 @Injectable({ providedIn: 'root' })
 export class TenantService {
@@ -21,7 +29,7 @@ export class TenantService {
   load() {
     this.api.tenant().subscribe({
       next: (tenant) => {
-        this.tenant.set(tenant);
+        this.tenant.set({ ...tenant, branding: { ...tenant.branding, logoMark: sameOriginPath(tenant.branding.logoMark) } });
         this.title.setTitle(tenant.name);
         this.applyTheme(tenant.branding.theme);
         this.loaded.set(true);
