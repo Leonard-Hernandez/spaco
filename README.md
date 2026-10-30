@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="spaco-app/public/assets/miel-spa/logo-mark.png" alt="Miel Spa logo mark" width="120">
+<img src="spaco-app/public/assets/miel-spa/logo-mark.webp" alt="Miel Spa logo mark" width="120">
 
 # Spaco
 
