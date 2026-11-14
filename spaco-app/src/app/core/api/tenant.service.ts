@@ -1,6 +1,7 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ApiService } from './api.service';
+import { openingHoursLines } from '../../shared/opening-hours';
 import { Branding, Tenant } from './models';
 
 /** Theme tokens a spa may override from its branding (see src/themes). */
@@ -15,6 +16,12 @@ function sameOriginPath(url: string | undefined): string | undefined {
   return url && /^\/(?![\/\\])/.test(url) ? url : undefined;
 }
 
+/** A profile value worth showing: not empty and not a seed placeholder such as "[DIRECCIÓN]". */
+export function realValue(value: string | null | undefined): string | null {
+  const v = value?.trim();
+  return v && !/^\[.*\]$/.test(v) ? v : null;
+}
+
 /** The spa this site belongs to (name, contact, branding). */
 @Injectable({ providedIn: 'root' })
 export class TenantService {
@@ -25,6 +32,20 @@ export class TenantService {
   readonly tenant = signal<Tenant | null>(null);
   /** True once the tenant request settled (even on error), so the UI knows a missing logo is final. */
   readonly loaded = signal(false);
+
+  /** Public contact details, each null while empty or still a placeholder. */
+  readonly contact = computed(() => {
+    const t = this.tenant();
+    const b = t?.branding ?? {};
+    return {
+      address: realValue(b.address) ?? realValue(t?.address),
+      city: realValue(b.city),
+      email: realValue(b.email),
+      instagram: realValue(b.instagram),
+      phone: realValue(t?.contactPhone) ?? realValue(b.whatsapp),
+      hours: openingHoursLines(t?.openingHours ?? [])
+    };
+  });
 
   load() {
     this.api.tenant().subscribe({
@@ -47,7 +68,7 @@ export class TenantService {
 
   /** wa.me link to the spa's WhatsApp (null while it is a placeholder), optionally prefilled. */
   whatsappLink(text?: string): string | null {
-    const digits = (this.tenant()?.contactPhone ?? this.branding().whatsapp ?? '').replace(/\D/g, '');
+    const digits = (this.contact().phone ?? '').replace(/\D/g, '');
     if (digits.length < 10) return null;
     const phone = digits.length === 10 && digits.startsWith('3') ? `57${digits}` : digits;
     return `https://wa.me/${phone}${text ? `?text=${encodeURIComponent(text)}` : ''}`;

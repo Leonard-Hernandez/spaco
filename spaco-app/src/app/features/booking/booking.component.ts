@@ -221,10 +221,12 @@ const DAYS_AHEAD = 60;
                   </div>
                 </app-label>
               </div>
+              @if (tenant.contact().phone; as phone) {
               <div class="cut help">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"></path></svg>
-                <span>¿Tienes dudas? Escríbenos por WhatsApp al <span class="num">{{ tenant.branding().whatsapp }}</span> y te ayudamos a elegir.</span>
+                <span>¿Tienes dudas? Escríbenos por WhatsApp al <span class="num">{{ phone }}</span> y te ayudamos a elegir.</span>
               </div>
+              }
             </aside>
           </div>
         </main>

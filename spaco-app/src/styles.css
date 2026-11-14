@@ -525,3 +525,4 @@ dialog.dlg::backdrop{background:rgba(30,43,85,.55)}
 /* The ticket stubs fit "10:30 a. m." in narrow columns too */
 .slots{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
 .slot-label{padding-left:14px;font-size:14px}
+.leader dd.hours{display:flex;flex-direction:column;gap:2px}

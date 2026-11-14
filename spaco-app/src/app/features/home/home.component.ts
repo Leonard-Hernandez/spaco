@@ -103,9 +103,15 @@ const PHOTO_KIND: Record<string, string> = { BEFORE: 'Antes', AFTER: 'Después',
             </div>
             <div class="cut info-card">
               <dl class="cut ly bg-wax col info-in" style="margin:0">
-                <div class="leader"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><dt class="tag">Horario</dt><span class="dots" aria-hidden="true"></span><dd>{{ b.hours }}</dd></div>
-                <div class="leader"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg><dt class="tag">Dirección</dt><span class="dots" aria-hidden="true"></span><dd>{{ b.address ?? tenant.tenant()?.address }}</dd></div>
-                <div class="leader"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"></path></svg><dt class="tag">WhatsApp</dt><span class="dots" aria-hidden="true"></span><dd class="num">{{ b.whatsapp }}</dd></div>
+                @if (tenant.contact().hours.length) {
+                <div class="leader"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><dt class="tag">Horario</dt><span class="dots" aria-hidden="true"></span><dd class="hours">@for (line of tenant.contact().hours; track line) { <span>{{ line }}</span> }</dd></div>
+                }
+                @if (tenant.contact().address; as address) {
+                <div class="leader"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg><dt class="tag">Dirección</dt><span class="dots" aria-hidden="true"></span><dd>{{ address }}</dd></div>
+                }
+                @if (tenant.contact().phone; as phone) {
+                <div class="leader"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"></path></svg><dt class="tag">WhatsApp</dt><span class="dots" aria-hidden="true"></span><dd class="num">{{ phone }}</dd></div>
+                }
               </dl>
             </div>
           </div>

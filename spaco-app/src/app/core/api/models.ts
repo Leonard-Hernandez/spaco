@@ -1,3 +1,5 @@
+import { OpeningDay } from '../../shared/opening-hours';
+
 /** spaco API contracts (see the backend DTOs). Prices are whole pesos; null = not published. */
 
 export interface Tenant {
@@ -7,6 +9,8 @@ export interface Tenant {
   contactPhone: string | null;
   address: string | null;
   branding: Branding;
+  /** Weekly hours derived from the schedule rules (closed days absent) */
+  openingHours: OpeningDay[];
 }
 
 /** Public profile the owner keeps in the tenant row; every field is optional. */
@@ -18,7 +22,6 @@ export interface Branding {
   tagline?: string;
   intro?: string;
   city?: string;
-  hours?: string;
   address?: string;
   whatsapp?: string;
   email?: string;
