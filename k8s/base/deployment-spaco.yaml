@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spaco
+  name: spaco
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spaco
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: spaco
+    spec:
+      containers:
+      - image: leonard20/spaco
+        name: spaco
+        ports:
+        - containerPort: 8092
+        envFrom:
+         - configMapRef:
+              name: spaco-config
+         - secretRef:
+              name: spaco-secrets
+        volumeMounts:
+        - name: spaco-pvc
+          mountPath: /data/uploads
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            memory: 1Gi
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 100
+          runAsGroup: 101
+          allowPrivilegeEscalation: false
+        startupProbe:
+          httpGet:
+            path: /spaco-api/actuator/health/liveness
+            port: 8092
+          periodSeconds: 10
+          failureThreshold: 30
+        readinessProbe:
+          httpGet:
+            path: /spaco-api/actuator/health/readiness
+            port: 8092
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /spaco-api/actuator/health/liveness
+            port: 8092
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: spaco-pvc
+        persistentVolumeClaim:
+          claimName: spaco-pvc
+

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spaco-app
+  name: spaco-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spaco-app
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: spaco-app
+    spec:
+      containers:
+      - image: leonard20/spaco-app
+        name: spaco-app
+        ports:
+        - containerPort: 80
+        envFrom:
+          - configMapRef:
+              name: spaco-app-config
+        resources:
+          requests:
+            cpu: 20m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+        readinessProbe:
+          httpGet:
+            path: /config.json
+            port: 80
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          periodSeconds: 30
