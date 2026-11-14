@@ -33,3 +33,6 @@ export function appConfig(): AppConfig {
 
 export const redirectUri = () => `${window.location.origin}/auth/callback`;
 export const postLogoutRedirectUri = () => `${window.location.origin}/`;
+
+/** Absolute API base: an absolute apiUrl (k3s) is kept as is, a relative one (docker) is resolved against the origin. */
+export const absoluteApiUrl = () => new URL(appConfig().apiUrl, window.location.origin).toString().replace(/\/$/, '');
