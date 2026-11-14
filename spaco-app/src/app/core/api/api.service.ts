@@ -6,7 +6,7 @@ import {
   Appointment, AppointmentStatus, AvailabilityException, AvailabilityRule, Booking, BookingInput, Catalog, Category,
   ClinicalAccess, ClinicalRecord, Consent, ConsentTemplate, ConsentType, ContraindicationCheck, Member, NoteMatch,
   Patient, PatientInput, PatientSummary, PhotoKind, Professional, PublicTestimonial, RecordInput, Role, SessionInput,
-  SessionNote, SessionPhoto, Slots, Staff, Tenant, Testimonial, TestimonialInput, Treatment, TreatmentInput
+  SessionNote, SessionPhoto, Slots, SpaProfile, Staff, Tenant, Testimonial, TestimonialInput, Treatment, TreatmentInput
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -253,6 +253,12 @@ export class ApiService {
   }
   removeMember(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/panel/admin/members/${id}`);
+  }
+  spaProfile(): Observable<SpaProfile> {
+    return this.http.get<SpaProfile>(`${this.base}/panel/admin/profile`);
+  }
+  saveSpaProfile(p: SpaProfile): Observable<SpaProfile> {
+    return this.http.put<SpaProfile>(`${this.base}/panel/admin/profile`, p);
   }
   consentTemplates(): Observable<ConsentTemplate[]> {
     return this.http.get<ConsentTemplate[]>(`${this.base}/panel/admin/consent-templates`);

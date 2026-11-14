@@ -15,6 +15,7 @@ export default [
       { path: 'asistente', loadComponent: () => import('./assistant.component') },
       { path: 'tratamientos', loadComponent: () => import('./admin/admin-treatments.component') },
       { path: 'horario', loadComponent: () => import('./admin/admin-schedule.component') },
+      { path: 'perfil', loadComponent: () => import('./admin/admin-profile.component') },
       { path: 'equipo', loadComponent: () => import('./admin/admin-team.component') },
       { path: 'autorizaciones', loadComponent: () => import('./admin/admin-consents.component') }
     ]
