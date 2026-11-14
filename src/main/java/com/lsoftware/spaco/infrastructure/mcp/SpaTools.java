@@ -174,7 +174,7 @@ public class SpaTools {
         return m;
     }
 
-    private static Map<String, Object> treatment(Treatment t) {
+    static Map<String, Object> treatment(Treatment t) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", t.id());
         m.put("name", t.name());

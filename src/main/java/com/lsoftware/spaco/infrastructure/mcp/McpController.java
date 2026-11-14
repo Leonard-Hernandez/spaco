@@ -3,11 +3,13 @@ package com.lsoftware.spaco.infrastructure.mcp;
 import com.lsoftware.spaco.entity.clinical.model.AccessChannel;
 import com.lsoftware.spaco.entity.clinical.model.Actor;
 import com.lsoftware.spaco.entity.exception.DomainException;
+import com.lsoftware.spaco.entity.member.model.MemberRole;
 import com.lsoftware.spaco.entity.member.model.TenantMember;
 import com.lsoftware.spaco.entity.tenant.gateway.TenantGateway;
 import com.lsoftware.spaco.entity.tenant.model.Tenant;
 import com.lsoftware.spaco.infrastructure.config.security.Actors;
 import com.lsoftware.spaco.infrastructure.config.tenant.TenantContext;
+import com.lsoftware.spaco.usecase.clinical.ClinicalAudit;
 import com.lsoftware.spaco.usecase.member.ResolveMemberUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,11 +29,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * MCP server (Streamable HTTP, stateless, JSON responses) for the spa in the path, e.g.
  * https://host/spaco-api/mcp/miel-spa. Only the spa's owner and estheticians may use it, with an
- * authco token (MCP clients get one through dynamic client registration). Every tool is read-only.
+ * authco token (MCP clients get one through dynamic client registration). Read tools are open to
+ * both; write tools (catalogue, team, hours, profile) are listed and callable by the owner only, and
+ * every write attempt goes to the access log with channel MCP.
  */
 @Slf4j
 @RestController
@@ -44,11 +49,13 @@ public class McpController {
     static final List<String> PROTOCOL_VERSIONS = List.of("2025-06-18", "2025-03-26", "2024-11-05");
 
     private static final String INSTRUCTIONS = """
-            Herramientas de solo lectura sobre los registros del spa: pacientes, historias clínicas             (anamnesis), notas de sesión, consentimientos, agenda y tratamientos. Responde en español.             Antes de hablar de una paciente, encuéntrala con search_patients y usa su id. Cita fechas y             fuentes (sesión, anamnesis) de lo que afirmes y no inventes datos que no estén registrados.             Las alertas y contraindicaciones son recordatorios: la decisión clínica es de la profesional.""";
+            Herramientas sobre los registros del spa: pacientes, historias clínicas             (anamnesis), notas de sesión, consentimientos, agenda y tratamientos. Los datos clínicos son             de solo lectura. La dueña además puede administrar el spa: categorías, tratamientos, equipo,             horarios y perfil público (herramientas create_/update_; no hay borrado, se desactiva con             active=false). Antes de crear o editar, consulta el estado actual con list_*. Responde en español.             Antes de hablar de una paciente, encuéntrala con search_patients y usa su id. Cita fechas y             fuentes (sesión, anamnesis) de lo que afirmes y no inventes datos que no estén registrados.             Las alertas y contraindicaciones son recordatorios: la decisión clínica es de la profesional.""";
 
     private final TenantGateway tenantGateway;
     private final ResolveMemberUseCase resolveMember;
     private final SpaTools spaTools;
+    private final SpaAdminTools adminTools;
+    private final ClinicalAudit audit;
     private final JsonMapper json;
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,15 +74,16 @@ public class McpController {
                         error(null, -32001, "Only the owner and estheticians of " + spa.name() + " can use this server"));
             }
             Actor actor = Actors.staff(member.get(), AccessChannel.MCP);
+            MemberRole role = member.get().role();
             if (body instanceof List<?> batch) {
                 List<Object> responses = new ArrayList<>();
                 for (Object message : batch) {
-                    Map<String, Object> response = dispatch(message, actor, spa);
+                    Map<String, Object> response = dispatch(message, actor, role, spa);
                     if (response != null) responses.add(response);
                 }
                 return responses.isEmpty() ? ResponseEntity.accepted().build() : ResponseEntity.ok(responses);
             }
-            Map<String, Object> response = dispatch(body, actor, spa);
+            Map<String, Object> response = dispatch(body, actor, role, spa);
             return response == null ? ResponseEntity.accepted().build() : ResponseEntity.ok(response);
         });
     }
@@ -87,7 +95,7 @@ public class McpController {
     }
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> dispatch(Object raw, Actor actor, Tenant spa) {
+    Map<String, Object> dispatch(Object raw, Actor actor, MemberRole role, Tenant spa) {
         if (!(raw instanceof Map<?, ?> message) || !"2.0".equals(message.get("jsonrpc"))) {
             return error(null, -32600, "Invalid JSON-RPC request");
         }
@@ -100,8 +108,9 @@ public class McpController {
             return switch (method) {
                 case "initialize" -> result(id, initialize(params, spa));
                 case "ping" -> result(id, Map.of());
-                case "tools/list" -> result(id, Map.of("tools", spaTools.tools().stream().map(McpTool::descriptor).toList()));
-                case "tools/call" -> result(id, call(params, actor));
+                case "tools/list" -> result(id, Map.of("tools", allTools().stream()
+                        .filter(t -> !t.write() || role == MemberRole.OWNER).map(McpTool::descriptor).toList()));
+                case "tools/call" -> result(id, call(params, actor, role));
                 default -> error(id, -32601, "Method not found: " + method);
             };
         } catch (RuntimeException e) {
@@ -122,22 +131,41 @@ public class McpController {
 
     /** Tool errors go back as results with isError, so the model can read and fix them. */
     @SuppressWarnings("unchecked")
-    private Map<String, Object> call(Map<String, Object> params, Actor actor) {
+    private Map<String, Object> call(Map<String, Object> params, Actor actor, MemberRole role) {
         String name = String.valueOf(params.get("name"));
         Map<String, Object> arguments = params.get("arguments") instanceof Map<?, ?> a ? (Map<String, Object>) a : Map.of();
-        McpTool tool = spaTools.tools().stream().filter(t -> t.name().equals(name)).findFirst().orElse(null);
+        McpTool tool = allTools().stream().filter(t -> t.name().equals(name)).findFirst().orElse(null);
         if (tool == null) return toolError("Unknown tool: " + name);
+        if (tool.write() && role != MemberRole.OWNER) {
+            audit.record(null, actor, auditAction("denied", tool));
+            return toolError("FORBIDDEN: " + tool.name() + " changes the spa and is only available to its owner");
+        }
         try {
+            if (tool.write()) SchemaValidator.validate(tool.inputSchema(), arguments);
             Object value = tool.handler().apply(new McpArgs(arguments), actor);
+            if (tool.write()) audit.record(null, actor, auditAction("write", tool));
             Map<String, Object> result = new LinkedHashMap<>();
             result.put("content", List.of(Map.of("type", "text", "text", json.writeValueAsString(value))));
             result.put("isError", false);
             return result;
-        } catch (DomainException e) {
-            return toolError(e.getCode() + ": " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return toolError("INVALID_ARGUMENT: " + e.getMessage());
+        } catch (DomainException | IllegalArgumentException e) {
+            if (tool.write()) audit.record(null, actor, auditAction("failed", tool));
+            return toolError((e instanceof DomainException d ? d.getCode() : "INVALID_ARGUMENT") + ": " + e.getMessage());
+        } catch (RuntimeException e) {
+            // Unexpected failure: still leave an audit trail of the attempt; handle() turns it into a generic error
+            if (tool.write()) audit.record(null, actor, auditAction("failed", tool));
+            throw e;
         }
+    }
+
+    private List<McpTool> allTools() {
+        return Stream.concat(spaTools.tools().stream(), adminTools.tools().stream()).toList();
+    }
+
+    /** Access-log action for a write attempt, e.g. write:create_treatment (the column holds 60 chars). */
+    private static String auditAction(String outcome, McpTool tool) {
+        String action = outcome + ":" + tool.name();
+        return action.length() <= 60 ? action : action.substring(0, 60);
     }
 
     private static Map<String, Object> toolError(String message) {

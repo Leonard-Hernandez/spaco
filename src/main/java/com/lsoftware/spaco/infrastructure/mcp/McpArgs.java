@@ -3,7 +3,9 @@ package com.lsoftware.spaco.infrastructure.mcp;
 import com.lsoftware.spaco.entity.exception.DomainException;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Map;
 
 /** Typed access to the arguments of a tool call. */
@@ -44,6 +46,47 @@ public record McpArgs(Map<String, Object> values) {
             return LocalDate.parse(v.length() > 10 ? v.substring(0, 10) : v);
         } catch (DateTimeParseException e) {
             throw new DomainException("INVALID_ARGUMENT", name + " must be a date like 2026-10-21");
+        }
+    }
+
+    /** True when the caller sent the argument, even as an explicit null (which means "clear it"). */
+    public boolean has(String name) {
+        return values.containsKey(name);
+    }
+
+    /** The argument as text, or the fallback when it is absent or null (blank text is kept as ""). */
+    public String text(String name, String fallback) {
+        if (!has(name)) return fallback;
+        Object v = values.get(name);
+        return v == null ? null : v.toString().strip();
+    }
+
+    public boolean bool(String name, boolean fallback) {
+        return values.get(name) instanceof Boolean b ? b : fallback;
+    }
+
+    /** Integer argument, or the fallback when absent; an explicit null gives null. */
+    public Long number(String name, Long fallback) {
+        return has(name) ? id(name) : fallback;
+    }
+
+    public int intValue(String name, int fallback) {
+        Long v = id(name);
+        return v == null ? fallback : Math.toIntExact(v);
+    }
+
+    public List<String> stringList(String name, List<String> fallback) {
+        if (!has(name)) return fallback;
+        return values.get(name) instanceof List<?> l ? l.stream().map(Object::toString).map(String::strip).toList() : List.of();
+    }
+
+    public LocalTime time(String name) {
+        String v = string(name);
+        if (v == null) return null;
+        try {
+            return LocalTime.parse(v);
+        } catch (DateTimeParseException e) {
+            throw new DomainException("INVALID_ARGUMENT", name + " must be a time like 09:30");
         }
     }
 
