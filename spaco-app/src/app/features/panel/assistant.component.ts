@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { ApiService, errorMessage } from '../../core/api/api.service';
 import { NoteMatch } from '../../core/api/models';
 import { TenantService } from '../../core/api/tenant.service';
-import { appConfig } from '../../core/config/app-config';
+import { absoluteApiUrl, appConfig } from '../../core/config/app-config';
 import { shortDate } from '../../shared/format';
 
 /**
@@ -57,7 +57,7 @@ import { shortDate } from '../../shared/format';
 export default class AssistantComponent {
   private api = inject(ApiService);
   readonly tenant = inject(TenantService);
-  readonly mcpUrl = `${window.location.origin}${appConfig().apiUrl}/mcp/${appConfig().tenant}`;
+  readonly mcpUrl = `${absoluteApiUrl()}/mcp/${appConfig().tenant}`;
   readonly copied = signal(false);
   readonly results = signal<NoteMatch[] | null>(null);
   readonly error = signal<string | null>(null);
