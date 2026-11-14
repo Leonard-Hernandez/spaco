@@ -1,44 +1,57 @@
 /*
- * Miel Spa & Bienestar: "Botica de Miel" (miel-spa-design). Each spa ships one theme file
+ * Miel Spa & Bienestar: "Reduce y Moldea" identity (rosa + gold on cream, Playfair Display + Poppins). Each spa ships one theme file
  * with these same tokens; components only read tokens. branding.theme in the tenant row can
  * override the colors without a build (see TenantService).
  */
 :root {
   color-scheme: light;
-  --amber: #D08A1C;
-  --navy: #1E2B55;
-  --navy-hover: #2C3D72;
-  --wax: #F7E3A6;
-  --wax-hover: #FCEFC4;
-  --field: #FDF5DC;
-  --gold-soft: #EFD58A;
-  --gold: #E9B85A;
-  --brown: #5C300A;
-  --brown-hover: #6A3A0E;
-  --honey: #E3A42F;
-  --lavender: #D2C5EC;
-  --sage: #7FA67A;
-  --clay: #8A4A3A;
-  --deep-honey: #7A4708;
-  --deep-lavender: #4F3F86;
-  --deep-sage: #3E5E3A;
-  --muted: #6B5520;
-  --muted-ink: #5E4A14;
-  --past-bg: #EFD9A0;
-  --past-fg: #7A6530;
-  --taken-rim: #B89A55;
-  --taken-bg: #E9D49A;
-  --taken-fg: #5A4A20;
-  --night-muted: #C9CEE0;
-  --night-rule: #4A5A8C;
-  --danger: #8E2A1E;
-  --ok: #3E5E3A;
-  --shadow-soft: rgba(70, 36, 0, 0.32);
-  --shadow-mid: rgba(70, 36, 0, 0.38);
-  --shadow-deep: rgba(20, 8, 0, 0.55);
-  --font-display: 'Big Shoulders Display', 'Oswald', 'Roboto Condensed', 'Arial Narrow', sans-serif;
-  --font-serif: 'Young Serif', 'Roboto Slab', 'Rockwell', Georgia, 'Times New Roman', serif;
-  --font-body: 'Libre Franklin', 'Franklin Gothic Book', 'Helvetica Neue', Arial, sans-serif;
+  /* Brand: rosa #E754A7 (dk #C8318A, lt #FCE8F3), gold #D4AF37 (dk #A8862A, lt #F6EBC8), silver #C0C0C0, gray #6D6D6D */
+  --rosa: #E754A7;
+  --rosa-lt: #FCE8F3;
+  --accent: #C8318A;
+  --accent-hover: #B02B7B;
+  --amber: #FBF3EF;
+  --navy: #3E3A3C;
+  --navy-hover: #5A5558;
+  --wax: #FFFFFF;
+  --wax-hover: #FCE8F3;
+  --field: #FFFFFF;
+  --gold-soft: #F6EBC8;
+  --gold: #D4AF37;
+  --brown: #B02B7B;
+  --brown-hover: #962368;
+  --honey: #F2A0CD;
+  --lavender: #D4AF37;
+  --sage: #C0C0C0;
+  --clay: #C8318A;
+  --deep-honey: #C8318A;
+  --deep-lavender: #8A6D1F;
+  --deep-sage: #6D6D6D;
+  --muted: #6D6D6D;
+  --muted-ink: #5A5558;
+  --past-bg: #F7E9E6;
+  --past-fg: #5A5558;
+  --taken-rim: #C0C0C0;
+  --taken-bg: #EFE3E0;
+  --taken-fg: #5A5558;
+  --night-muted: #D9D3D6;
+  --night-rule: #6D6D6D;
+  --danger: #A3202F;
+  --ok: #2E7D4F;
+  --shadow-soft: rgba(200, 49, 138, 0.22);
+  --shadow-mid: rgba(62, 58, 60, 0.28);
+  --shadow-deep: rgba(30, 26, 28, 0.55);
+  --page-glow: radial-gradient(900px 520px at 100% 0%, rgba(231, 84, 167, 0.14), transparent 70%), radial-gradient(800px 520px at 0% 100%, rgba(212, 175, 55, 0.16), transparent 70%);
+  --btn-radius: 999px;
+  --serif-weight: 700;
+  --display-scale: 0.74;
+  --font-display: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --gutter: clamp(16px, 10vw - 24px, 120px);
+  /* The emblem stands alone: no circular frame */
+  --logo-bg: transparent;
+  --logo-radius: 0;
+  --logo-border: none;
 }

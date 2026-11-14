@@ -11,7 +11,7 @@ import { TenantService } from '../core/api/tenant.service';
       <div class="wrap">
         <div class="foot-grid">
           <div class="foot-brand">
-            @if (b.logoMark && !logoFailed()) { <img class="foot-logo" [src]="b.logoMark" alt="" width="468" height="510" (error)="logoFailed.set(true)"> }
+            @if (b.logoMark && !logoFailed()) { <img class="foot-logo" [src]="b.logoMark" alt="" width="355" height="360" (error)="logoFailed.set(true)"> }
             <span class="foot-miel">{{ b.wordmark ?? tenant.tenant()?.name }}</span>
             <span class="foot-sub">{{ b.subline }}</span>
             @if (b.tagline) { <p class="soft" style="margin-top:10px;max-width:360px;line-height:1.6">{{ b.tagline }}.</p> }

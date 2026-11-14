@@ -25,7 +25,7 @@ import { AuthorizationResponse, OAuthError } from '../../core/auth/oauth.models'
   `,
   styles: `
     .screen { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 1rem; padding: 2rem; text-align: center; background: var(--amber); color: var(--navy); }
-    h1 { font-family: var(--font-serif); font-weight: 400; font-size: 2rem; margin: 0; }
+    h1 { font-family: var(--font-serif); font-weight: var(--serif-weight, 400); font-size: 2rem; margin: 0; }
     p { max-width: 28rem; margin: 0; }
     .wait { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; }
   `
