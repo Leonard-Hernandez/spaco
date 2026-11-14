@@ -34,7 +34,7 @@ const PHOTO_KIND: Record<string, string> = { BEFORE: 'Antes', AFTER: 'Después',
                       <div class="leader"><dt class="tag">Duración</dt><span class="dots" aria-hidden="true"></span><dd class="num">{{ duration(quickTreatment()?.durationMin ?? h.durationMin) }}</dd></div>
                       <div class="leader"><dt class="tag">Precio</dt><span class="dots" aria-hidden="true"></span><dd class="num">{{ price(quickTreatment()?.price ?? h.price) }}</dd></div>
                     </dl>
-                    <span class="tilt" aria-hidden="true"><span class="lot">LOTE<span class="num">{{ year }}·{{ formula((quickTreatment() ?? h).formulaNo) }}</span></span></span>
+                    <span class="tilt" aria-hidden="true"><span class="lot">LOTE<span class="num">{{ lot }}</span></span></span>
                   </div>
                   <form class="quick" aria-label="Reserva rápida" (ngSubmit)="quickGo()">
                     <div class="quick-row">
@@ -166,8 +166,8 @@ const PHOTO_KIND: Record<string, string> = { BEFORE: 'Antes', AFTER: 'Después',
                       </dl>
                       <div class="lab-foot">
                         <span class="tilt-9" aria-hidden="true">
-                          @if (on) { <span class="lot lot-sm lot-on stamp-land">ELEGIDA<span class="num">{{ year }}·{{ formula(t.formulaNo) }}</span></span> }
-                          @else { <span class="lot lot-sm">LOTE<span class="num">{{ year }}·{{ formula(t.formulaNo) }}</span></span> }
+                          @if (on) { <span class="lot lot-sm lot-on stamp-land">ELEGIDA<span class="num">{{ lot }}</span></span> }
+                          @else { <span class="lot lot-sm">LOTE<span class="num">{{ lot }}</span></span> }
                         </span>
                         <div class="lab-actions">
                           <button type="button" class="btn btn-sm" [class.btn-ink]="on" [class.btn-line]="!on" [attr.aria-pressed]="on" (click)="choose(t)">{{ on ? 'Elegida' : 'Elegir' }}</button>
@@ -285,7 +285,8 @@ export default class HomeComponent implements OnInit {
   quickPart = '';
 
   readonly today = todayIso();
-  readonly year = new Date().getFullYear();
+  /** Batch stamp follows the current date as YYYY-MM. */
+  readonly lot = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' }).slice(0, 7);
   readonly photoKind = PHOTO_KIND;
   readonly carousel = viewChild<ElementRef<HTMLElement>>('carousel');
 
@@ -306,8 +307,8 @@ export default class HomeComponent implements OnInit {
   });
   readonly stampText = computed(() => {
     const b = this.tenant.branding();
-    const words = `${(b.wordmark ?? '').toUpperCase()} PURA · ${(b.city ?? '').toUpperCase()} · `;
-    return words + words;
+    const words = `${(b.wordmark ?? '').toUpperCase()} PURA · `;
+    return words.repeat(3);
   });
 
   readonly formula = formula;
