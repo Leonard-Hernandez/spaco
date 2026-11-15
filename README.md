@@ -30,7 +30,7 @@ treatment is presented as an apothecary label.
 | 📅 **Booking without an account** | `/agendar` | Treatment → date and time (real free slots per professional) → contact data + data-processing consent → done. The request stays `PENDING`, holding the slot, until the spa confirms it. `/cita/{token}` lets the patient view or cancel it. |
 | 🩺 **Patient portal** | `/mi-historia` | Google login. Anamnesis, sessions with photos, appointments, consents (grant or revoke the photo/testimonial one) and **who accessed the record**. Linked to the patient registered with the same verified email. |
 | 🧑‍⚕️ **Staff panel** | `/panel` | Requests, agenda, patients and their **clinical record** (anamnesis, session notes, private before/after photos, in-person consents, contraindication check, access log), testimonials. Owners also manage treatments, schedule, team and legal texts. |
-| 🤖 **MCP server** | `/spaco-api/mcp/{spa}` | Read-only tools so an esthetician can ask Claude about patients in natural language. [More below](#mcp-server). |
+| 🤖 **MCP server** | `/spaco-api/mcp/{spa}` | Read tools so an esthetician can ask Claude about patients, plus owner-only tools to manage catalogue, team, hours and profile. [More below](#mcp-server). |
 
 ### Roles
 
@@ -149,7 +149,7 @@ and start the rest with `--no-deps`. When the URL changes, update in this order:
 ## MCP server
 
 `<PUBLIC_URL>/spaco-api/mcp/<spa>`, for example `https://…/spaco-api/mcp/miel-spa`.
-Streamable HTTP, stateless JSON-RPC, read-only tools:
+Streamable HTTP, stateless JSON-RPC. Clinical data is read-only; the owner can also manage the spa:
 
 | Tool | What it returns |
 |---|---|
@@ -161,11 +161,25 @@ Streamable HTTP, stateless JSON-RPC, read-only tools:
 | `check_contraindications` | Treatment contraindications vs the patient's history |
 | `get_patient_appointments` / `list_appointments` | Appointments |
 | `list_treatments` / `list_professionals` | Catalogue and team |
+| `list_categories`, `list_availability_rules`, `get_spa_profile` | Categories, weekly hours and public profile (read) |
+| `create_category` / `update_category` | **Owner only.** Treatment categories (name, ink, position, active) |
+| `create_treatment` / `update_treatment` | **Owner only.** Name, category, tagline, description, benefits, contraindications, duration, buffer, price, position, active |
+| `create_professional` / `update_professional` | **Owner only.** Team members (no photo upload) |
+| `create_availability_rule` / `update_availability_rule` | **Owner only.** Weekly working blocks; `active=false` switches one off |
+| `update_spa_profile` | **Owner only.** Same fields and validation as the panel's profile screen |
+
+Write tools reuse the panel's use cases and request validation, update only the fields you send
+(an explicit `null` clears nullable ones), never delete (use `active=false`), and never touch
+patients, clinical records, session notes or appointments. They carry the MCP annotations
+`readOnlyHint=false` / `destructiveHint` / `idempotentHint`, are hidden from `tools/list` for
+estheticians, and answer them with an `isError` result (`FORBIDDEN`). Bad arguments come back as
+`INVALID_ARGUMENT` results. Every write attempt (`write:`, `failed:` or `denied:` + tool name) is
+logged in `clinical_access_log` with channel `MCP`.
 
 **Auth:** authco OAuth. A 401 points to the RFC 9728 metadata (served by Spring Security), which
 names authco. MCP clients register themselves (authco DCR allows the claude.ai/claude.com
 callbacks) and the user logs in with Google. Only `OWNER` and `ESTHETICIAN` members of that spa
-get through, and every call is audited with channel `MCP`.
+get through; clinical reads and every write attempt are audited with channel `MCP`.
 
 **Connect it to Claude:** Settings → Connectors → Add custom connector → paste the URL → log in
 with the staff Google account. The panel page `/panel/asistente` shows the URL and the steps.
