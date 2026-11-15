@@ -2,6 +2,7 @@ package com.lsoftware.spaco.infrastructure.tenant.controller;
 
 import com.lsoftware.spaco.infrastructure.tenant.dto.TenantResponse;
 import com.lsoftware.spaco.usecase.tenant.GetCurrentTenantUseCase;
+import com.lsoftware.spaco.usecase.tenant.GetOpeningHoursUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class TenantController {
 
     private final GetCurrentTenantUseCase useCase;
+    private final GetOpeningHoursUseCase openingHours;
 
     @GetMapping
     @Operation(summary = "Current spa profile")
     public TenantResponse current() {
-        return TenantResponse.from(useCase.execute());
+        return TenantResponse.from(useCase.execute(), openingHours.execute());
     }
 }

@@ -7,6 +7,7 @@ import { TenantService } from '../core/api/tenant.service';
   imports: [RouterLink],
   template: `
     @let b = tenant.branding();
+    @let c = tenant.contact();
     <footer id="contacto" class="foot on-dark">
       <div class="wrap">
         <div class="foot-grid">
@@ -18,22 +19,18 @@ import { TenantService } from '../core/api/tenant.service';
           </div>
           <div class="foot-col">
             <h2 class="foot-h">Visítanos</h2>
-            <p>{{ b.address ?? tenant.tenant()?.address }}</p>
-            @if (b.city) { <p>{{ b.city }}</p> }
-            <p class="soft">{{ b.hours }}</p>
+            @if (c.address) { <p>{{ c.address }}</p> }
+            @if (c.city) { <p>{{ c.city }}</p> }
+            @for (line of c.hours; track line) { <p class="soft">{{ line }}</p> }
           </div>
           <div class="foot-col wide">
             <h2 class="foot-h">Escríbenos</h2>
-            @if (b.email) { <p>{{ b.email }}</p> }
-            @if (b.instagram) { <p>{{ b.instagram }}</p> }
+            @if (c.email) { <p>{{ c.email }}</p> }
+            @if (c.instagram) { <p>{{ c.instagram }}</p> }
             @if (tenant.whatsappLink(); as wa) {
               <a class="wa-chip" [href]="wa" target="_blank" rel="noopener">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"></path></svg>WhatsApp <span class="num">{{ b.whatsapp }}</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"></path></svg>WhatsApp <span class="num">{{ c.phone }}</span>
               </a>
-            } @else {
-              <p class="wa-chip">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"></path></svg>WhatsApp <span class="num">{{ b.whatsapp }}</span>
-              </p>
             }
           </div>
         </div>
