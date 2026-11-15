@@ -13,6 +13,18 @@ export interface Tenant {
   openingHours: OpeningDay[];
 }
 
+/** Public profile the owner edits in the panel; empty string = not set. */
+export interface SpaProfile {
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  city: string | null;
+  tagline: string | null;
+  intro: string | null;
+  instagram: string | null;
+  cancellationNote: string | null;
+}
+
 /** Public profile the owner keeps in the tenant row; every field is optional. */
 export interface Branding {
   wordmark?: string;

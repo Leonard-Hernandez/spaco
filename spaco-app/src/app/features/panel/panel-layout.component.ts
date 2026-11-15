@@ -42,6 +42,7 @@ const POLL_MS = 30_000;
               @if (ctx.isOwner()) {
                 <a routerLink="tratamientos" routerLinkActive="active">Tratamientos</a>
                 <a routerLink="horario" routerLinkActive="active">Horario</a>
+                <a routerLink="perfil" routerLinkActive="active">Perfil del spa</a>
                 <a routerLink="equipo" routerLinkActive="active">Equipo</a>
                 <a routerLink="autorizaciones" routerLinkActive="active">Textos legales</a>
               }
